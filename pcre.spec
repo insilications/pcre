@@ -4,28 +4,27 @@
 #
 # Source0 file verified with key 0x9766E084FB0F43D8 (ph10@cam.ac.uk)
 #
+%define keepstatic 1
 Name     : pcre
 Version  : 8.44
-Release  : 57
+Release  : 58
 URL      : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source0  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source1  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz.sig
 Summary  : PCRE - Perl compatible regular expressions C library with 8 bit character support
 Group    : Development/Tools
-License  : BSD-3-Clause
+License  : FTL GPL-2.0+ MIT Zlib
 Requires: pcre-bin = %{version}-%{release}
 Requires: pcre-lib = %{version}-%{release}
-Requires: pcre-license = %{version}-%{release}
 Requires: pcre-man = %{version}-%{release}
+BuildRequires : buildreq-configure
 BuildRequires : bzip2-dev
-BuildRequires : gcc-dev32
-BuildRequires : gcc-libgcc32
-BuildRequires : gcc-libstdc++32
-BuildRequires : glibc-dev32
-BuildRequires : glibc-libc32
 BuildRequires : pkgconfig(valgrind)
 BuildRequires : pkgconfig(zlib)
 BuildRequires : zlib-dev
+# Suppress stripping binaries
+%define __strip /bin/true
+%define debug_package %{nil}
 
 %description
 -----------------------------------------------------------------
@@ -40,7 +39,6 @@ libraries.
 %package bin
 Summary: bin components for the pcre package.
 Group: Binaries
-Requires: pcre-license = %{version}-%{release}
 
 %description bin
 bin components for the pcre package.
@@ -56,17 +54,6 @@ Requires: pcre = %{version}-%{release}
 
 %description dev
 dev components for the pcre package.
-
-
-%package dev32
-Summary: dev32 components for the pcre package.
-Group: Default
-Requires: pcre-lib32 = %{version}-%{release}
-Requires: pcre-bin = %{version}-%{release}
-Requires: pcre-dev = %{version}-%{release}
-
-%description dev32
-dev32 components for the pcre package.
 
 
 %package doc
@@ -89,27 +76,9 @@ extras components for the pcre package.
 %package lib
 Summary: lib components for the pcre package.
 Group: Libraries
-Requires: pcre-license = %{version}-%{release}
 
 %description lib
 lib components for the pcre package.
-
-
-%package lib32
-Summary: lib32 components for the pcre package.
-Group: Default
-Requires: pcre-license = %{version}-%{release}
-
-%description lib32
-lib32 components for the pcre package.
-
-
-%package license
-Summary: license components for the pcre package.
-Group: Default
-
-%description license
-license components for the pcre package.
 
 
 %package man
@@ -120,105 +89,99 @@ Group: Default
 man components for the pcre package.
 
 
+%package staticdev
+Summary: staticdev components for the pcre package.
+Group: Default
+Requires: pcre-dev = %{version}-%{release}
+
+%description staticdev
+staticdev components for the pcre package.
+
+
 %prep
 %setup -q -n pcre-8.44
 cd %{_builddir}/pcre-8.44
-pushd ..
-cp -a pcre-8.44 build32
-popd
-pushd ..
-cp -a pcre-8.44 buildavx2
-popd
 
 %build
-export http_proxy=http://127.0.0.1:9/
-export https_proxy=http://127.0.0.1:9/
-export no_proxy=localhost,127.0.0.1,0.0.0.0
+## build_prepend content
+find . -type f -name 'configure' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+## build_prepend end
+unset http_proxy
+unset https_proxy
+unset no_proxy
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1595352922
+export SOURCE_DATE_EPOCH=1595605615
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
-export CFLAGS="$CFLAGS -O3 -falign-functions=32 -ffat-lto-objects -flto=4 -fno-math-errno -fno-semantic-interposition -fno-trapping-math "
-export FCFLAGS="$FFLAGS -O3 -falign-functions=32 -ffat-lto-objects -flto=4 -fno-math-errno -fno-semantic-interposition -fno-trapping-math "
-export FFLAGS="$FFLAGS -O3 -falign-functions=32 -ffat-lto-objects -flto=4 -fno-math-errno -fno-semantic-interposition -fno-trapping-math "
-export CXXFLAGS="$CXXFLAGS -O3 -falign-functions=32 -ffat-lto-objects -flto=4 -fno-math-errno -fno-semantic-interposition -fno-trapping-math "
-export CFLAGS_GENERATE="$CFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo -fprofile-update=atomic "
-export FCFLAGS_GENERATE="$FCFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo -fprofile-update=atomic "
-export FFLAGS_GENERATE="$FFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo -fprofile-update=atomic "
-export CXXFLAGS_GENERATE="$CXXFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo -fprofile-update=atomic "
-export LDFLAGS_GENERATE="$LDFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo -fprofile-update=atomic "
-export CFLAGS_USE="$CFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
-export FCFLAGS_USE="$FCFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
-export FFLAGS_USE="$FFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
-export CXXFLAGS_USE="$CXXFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
-export LDFLAGS_USE="$LDFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
-CFLAGS="${CFLAGS_GENERATE}" CXXFLAGS="${CXXFLAGS_GENERATE}" FFLAGS="${FFLAGS_GENERATE}" FCFLAGS="${FCFLAGS_GENERATE}" LDFLAGS="${LDFLAGS_GENERATE}" %configure --disable-static --enable-jit --enable-utf  --enable-unicode-properties --enable-pcre16 --enable-pcre32
-make  %{?_smp_mflags}
+## altflags_pgo content
+## pgo generate
+export PGO_GEN="-fprofile-generate=/var/tmp/pgo -fprofile-dir=/var/tmp/pgo -fprofile-abs-path -fprofile-update=atomic -fprofile-arcs -ftest-coverage --coverage -fprofile-partial-training"
+export CFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -pipe $PGO_GEN"
+export FCFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -pipe $PGO_GEN"
+export FFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -pipe $PGO_GEN"
+export CXXFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -fvisibility-inlines-hidden -pipe $PGO_GEN"
+export LDFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -pipe $PGO_GEN"
+## pgo use
+## -ffat-lto-objects -fno-PIE -fno-PIE -m64 -no-pie -fpic -fvisibility=hidden
+## gcc: -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-common -Wno-error -Wp,-D_REENTRANT
+export PGO_USE="-fprofile-use=/var/tmp/pgo -fprofile-dir=/var/tmp/pgo -fprofile-abs-path -fprofile-correction -fprofile-partial-training"
+export CFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -fno-common -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -pipe $PGO_USE"
+export FCFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -fno-common -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -pipe $PGO_USE"
+export FFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -fno-common -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -pipe $PGO_USE"
+export CXXFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -fno-common -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden -pipe $PGO_USE"
+export LDFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -fno-common -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -pipe $PGO_USE"
+export AR=gcc-ar
+export RANLIB=gcc-ranlib
+export NM=gcc-nm
+#export CCACHE_DISABLE=1
+## altflags_pgo end
+export CFLAGS="${CFLAGS_GENERATE}"
+export CXXFLAGS="${CXXFLAGS_GENERATE}"
+export FFLAGS="${FFLAGS_GENERATE}"
+export FCFLAGS="${FCFLAGS_GENERATE}"
+export LDFLAGS="${LDFLAGS_GENERATE}"
+%configure  --enable-shared --enable-static  --enable-jit --enable-utf --enable-unicode-properties --enable-pcre16 --enable-pcre32
+## make_prepend content
+find . -type f -name 'Makefile' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+#
+find . -type f -name 'libtool' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+## make_prepend end
+make  %{?_smp_mflags}  V=1 VERBOSE=1
 
 make VERBOSE=1 V=1 %{?_smp_mflags} check || :
 make clean
-CFLAGS="${CFLAGS_USE}" CXXFLAGS="${CXXFLAGS_USE}" FFLAGS="${FFLAGS_USE}" FCFLAGS="${FCFLAGS_USE}" LDFLAGS="${LDFLAGS_USE}" %configure --disable-static --enable-jit --enable-utf  --enable-unicode-properties --enable-pcre16 --enable-pcre32
-make  %{?_smp_mflags}
+export CFLAGS="${CFLAGS_USE}"
+export CXXFLAGS="${CXXFLAGS_USE}"
+export FFLAGS="${FFLAGS_USE}"
+export FCFLAGS="${FCFLAGS_USE}"
+export LDFLAGS="${LDFLAGS_USE}"
+%configure  --enable-shared --enable-static  --enable-jit --enable-utf --enable-unicode-properties --enable-pcre16 --enable-pcre32
+## make_prepend content
+find . -type f -name 'Makefile' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+#
+find . -type f -name 'libtool' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+## make_prepend end
+make  %{?_smp_mflags}  V=1 VERBOSE=1
 
-pushd ../build32/
-export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
-export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
-export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
-export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
-export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
-%configure --disable-static --enable-jit --enable-utf  --enable-unicode-properties --enable-pcre16 --enable-pcre32   --libdir=/usr/lib32 --build=i686-generic-linux-gnu --host=i686-generic-linux-gnu --target=i686-clr-linux-gnu
-make  %{?_smp_mflags}
-popd
-unset PKG_CONFIG_PATH
-pushd ../buildavx2/
-export CFLAGS="$CFLAGS -m64 -march=haswell"
-export CXXFLAGS="$CXXFLAGS -m64 -march=haswell"
-export FFLAGS="$FFLAGS -m64 -march=haswell"
-export FCFLAGS="$FCFLAGS -m64 -march=haswell"
-export LDFLAGS="$LDFLAGS -m64 -march=haswell"
-%configure --disable-static --enable-jit --enable-utf  --enable-unicode-properties --enable-pcre16 --enable-pcre32
-make  %{?_smp_mflags}
-popd
 %check
 export LANG=C.UTF-8
-export http_proxy=http://127.0.0.1:9/
-export https_proxy=http://127.0.0.1:9/
-export no_proxy=localhost,127.0.0.1,0.0.0.0
+unset http_proxy
+unset https_proxy
+unset no_proxy
 make VERBOSE=1 V=1 %{?_smp_mflags} check || :
-cd ../build32;
-make VERBOSE=1 V=1 %{?_smp_mflags} check || : || :
-cd ../buildavx2;
-make VERBOSE=1 V=1 %{?_smp_mflags} check || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1595352922
+export SOURCE_DATE_EPOCH=1595605615
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/package-licenses/pcre
-cp %{_builddir}/pcre-8.44/LICENCE %{buildroot}/usr/share/package-licenses/pcre/11ff082389982b8168263850db69199065f2028d
-cp %{_builddir}/pcre-8.44/cmake/COPYING-CMAKE-SCRIPTS %{buildroot}/usr/share/package-licenses/pcre/ff3ed70db4739b3c6747c7f624fe2bad70802987
-pushd ../build32/
-%make_install32
-if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
-then
-pushd %{buildroot}/usr/lib32/pkgconfig
-for i in *.pc ; do ln -s $i 32$i ; done
-popd
-fi
-popd
-pushd ../buildavx2/
-%make_install_avx2
-popd
-%make_install
+%make_install V=1 VERBOSE=1
 
 %files
 %defattr(-,root,root,-)
 
 %files bin
 %defattr(-,root,root,-)
-/usr/bin/haswell/pcregrep
-/usr/bin/haswell/pcretest
 /usr/bin/pcre-config
 /usr/bin/pcregrep
 /usr/bin/pcretest
@@ -231,11 +194,6 @@ popd
 /usr/include/pcrecpp.h
 /usr/include/pcrecpparg.h
 /usr/include/pcreposix.h
-/usr/lib64/haswell/libpcre.so
-/usr/lib64/haswell/libpcre16.so
-/usr/lib64/haswell/libpcre32.so
-/usr/lib64/haswell/libpcrecpp.so
-/usr/lib64/haswell/libpcreposix.so
 /usr/lib64/libpcre.so
 /usr/lib64/libpcre16.so
 /usr/lib64/libpcre32.so
@@ -347,38 +305,12 @@ popd
 /usr/share/man/man3/pcresyntax.3
 /usr/share/man/man3/pcreunicode.3
 
-%files dev32
-%defattr(-,root,root,-)
-/usr/lib32/libpcre.so
-/usr/lib32/libpcre16.so
-/usr/lib32/libpcre32.so
-/usr/lib32/libpcrecpp.so
-/usr/lib32/libpcreposix.so
-/usr/lib32/pkgconfig/32libpcre.pc
-/usr/lib32/pkgconfig/32libpcre16.pc
-/usr/lib32/pkgconfig/32libpcre32.pc
-/usr/lib32/pkgconfig/32libpcrecpp.pc
-/usr/lib32/pkgconfig/32libpcreposix.pc
-/usr/lib32/pkgconfig/libpcre.pc
-/usr/lib32/pkgconfig/libpcre16.pc
-/usr/lib32/pkgconfig/libpcre32.pc
-/usr/lib32/pkgconfig/libpcrecpp.pc
-/usr/lib32/pkgconfig/libpcreposix.pc
-
 %files doc
 %defattr(0644,root,root,0755)
 %doc /usr/share/doc/pcre/*
 
 %files extras
 %defattr(-,root,root,-)
-/usr/lib64/haswell/libpcre16.so.0
-/usr/lib64/haswell/libpcre16.so.0.2.12
-/usr/lib64/haswell/libpcre32.so.0
-/usr/lib64/haswell/libpcre32.so.0.0.12
-/usr/lib64/haswell/libpcrecpp.so.0
-/usr/lib64/haswell/libpcrecpp.so.0.0.2
-/usr/lib64/haswell/libpcreposix.so.0
-/usr/lib64/haswell/libpcreposix.so.0.0.7
 /usr/lib64/libpcre16.so.0
 /usr/lib64/libpcre16.so.0.2.12
 /usr/lib64/libpcre32.so.0
@@ -390,31 +322,19 @@ popd
 
 %files lib
 %defattr(-,root,root,-)
-/usr/lib64/haswell/libpcre.so.1
-/usr/lib64/haswell/libpcre.so.1.2.12
 /usr/lib64/libpcre.so.1
 /usr/lib64/libpcre.so.1.2.12
-
-%files lib32
-%defattr(-,root,root,-)
-/usr/lib32/libpcre.so.1
-/usr/lib32/libpcre.so.1.2.12
-/usr/lib32/libpcre16.so.0
-/usr/lib32/libpcre16.so.0.2.12
-/usr/lib32/libpcre32.so.0
-/usr/lib32/libpcre32.so.0.0.12
-/usr/lib32/libpcrecpp.so.0
-/usr/lib32/libpcrecpp.so.0.0.2
-/usr/lib32/libpcreposix.so.0
-/usr/lib32/libpcreposix.so.0.0.7
-
-%files license
-%defattr(0644,root,root,0755)
-/usr/share/package-licenses/pcre/11ff082389982b8168263850db69199065f2028d
-/usr/share/package-licenses/pcre/ff3ed70db4739b3c6747c7f624fe2bad70802987
 
 %files man
 %defattr(0644,root,root,0755)
 /usr/share/man/man1/pcre-config.1
 /usr/share/man/man1/pcregrep.1
 /usr/share/man/man1/pcretest.1
+
+%files staticdev
+%defattr(-,root,root,-)
+/usr/lib64/libpcre.a
+/usr/lib64/libpcre16.a
+/usr/lib64/libpcre32.a
+/usr/lib64/libpcrecpp.a
+/usr/lib64/libpcreposix.a

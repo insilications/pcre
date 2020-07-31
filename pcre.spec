@@ -7,7 +7,7 @@
 %define keepstatic 1
 Name     : pcre
 Version  : 8.44
-Release  : 58
+Release  : 59
 URL      : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source0  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source1  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz.sig
@@ -19,6 +19,12 @@ Requires: pcre-lib = %{version}-%{release}
 Requires: pcre-man = %{version}-%{release}
 BuildRequires : buildreq-configure
 BuildRequires : bzip2-dev
+BuildRequires : findutils
+BuildRequires : gcc-dev32
+BuildRequires : gcc-libgcc32
+BuildRequires : gcc-libstdc++32
+BuildRequires : glibc-dev32
+BuildRequires : glibc-libc32
 BuildRequires : pkgconfig(valgrind)
 BuildRequires : pkgconfig(zlib)
 BuildRequires : zlib-dev
@@ -56,6 +62,17 @@ Requires: pcre = %{version}-%{release}
 dev components for the pcre package.
 
 
+%package dev32
+Summary: dev32 components for the pcre package.
+Group: Default
+Requires: pcre-lib32 = %{version}-%{release}
+Requires: pcre-bin = %{version}-%{release}
+Requires: pcre-dev = %{version}-%{release}
+
+%description dev32
+dev32 components for the pcre package.
+
+
 %package doc
 Summary: doc components for the pcre package.
 Group: Documentation
@@ -81,6 +98,14 @@ Group: Libraries
 lib components for the pcre package.
 
 
+%package lib32
+Summary: lib32 components for the pcre package.
+Group: Default
+
+%description lib32
+lib32 components for the pcre package.
+
+
 %package man
 Summary: man components for the pcre package.
 Group: Default
@@ -98,9 +123,21 @@ Requires: pcre-dev = %{version}-%{release}
 staticdev components for the pcre package.
 
 
+%package staticdev32
+Summary: staticdev32 components for the pcre package.
+Group: Default
+Requires: pcre-dev = %{version}-%{release}
+
+%description staticdev32
+staticdev32 components for the pcre package.
+
+
 %prep
 %setup -q -n pcre-8.44
 cd %{_builddir}/pcre-8.44
+pushd ..
+cp -a pcre-8.44 build32
+popd
 
 %build
 ## build_prepend content
@@ -110,7 +147,7 @@ unset http_proxy
 unset https_proxy
 unset no_proxy
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1595605615
+export SOURCE_DATE_EPOCH=1596173894
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -165,16 +202,45 @@ find . -type f -name 'libtool' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
 ## make_prepend end
 make  %{?_smp_mflags}  V=1 VERBOSE=1
 
+pushd ../build32/
+## build_prepend content
+find . -type f -name 'configure' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+## build_prepend end
+export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
+export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
+export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
+export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
+%configure  --enable-shared --enable-static  --enable-jit --enable-utf --enable-unicode-properties --enable-pcre16 --enable-pcre32   --libdir=/usr/lib32 --build=i686-generic-linux-gnu --host=i686-generic-linux-gnu --target=i686-clr-linux-gnu
+## make_prepend content
+find . -type f -name 'Makefile' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+#
+find . -type f -name 'libtool' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
+## make_prepend end
+make  %{?_smp_mflags}  V=1 VERBOSE=1
+popd
+
 %check
 export LANG=C.UTF-8
 unset http_proxy
 unset https_proxy
 unset no_proxy
 make VERBOSE=1 V=1 %{?_smp_mflags} check || :
+cd ../build32;
+make VERBOSE=1 V=1 %{?_smp_mflags} check || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1595605615
+export SOURCE_DATE_EPOCH=1596173894
 rm -rf %{buildroot}
+pushd ../build32/
+%make_install32 V=1 VERBOSE=1
+if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
+then
+pushd %{buildroot}/usr/lib32/pkgconfig
+for i in *.pc ; do ln -s $i 32$i ; done
+popd
+fi
+popd
 %make_install V=1 VERBOSE=1
 
 %files
@@ -305,6 +371,24 @@ rm -rf %{buildroot}
 /usr/share/man/man3/pcresyntax.3
 /usr/share/man/man3/pcreunicode.3
 
+%files dev32
+%defattr(-,root,root,-)
+/usr/lib32/libpcre.so
+/usr/lib32/libpcre16.so
+/usr/lib32/libpcre32.so
+/usr/lib32/libpcrecpp.so
+/usr/lib32/libpcreposix.so
+/usr/lib32/pkgconfig/32libpcre.pc
+/usr/lib32/pkgconfig/32libpcre16.pc
+/usr/lib32/pkgconfig/32libpcre32.pc
+/usr/lib32/pkgconfig/32libpcrecpp.pc
+/usr/lib32/pkgconfig/32libpcreposix.pc
+/usr/lib32/pkgconfig/libpcre.pc
+/usr/lib32/pkgconfig/libpcre16.pc
+/usr/lib32/pkgconfig/libpcre32.pc
+/usr/lib32/pkgconfig/libpcrecpp.pc
+/usr/lib32/pkgconfig/libpcreposix.pc
+
 %files doc
 %defattr(0644,root,root,0755)
 %doc /usr/share/doc/pcre/*
@@ -325,6 +409,19 @@ rm -rf %{buildroot}
 /usr/lib64/libpcre.so.1
 /usr/lib64/libpcre.so.1.2.12
 
+%files lib32
+%defattr(-,root,root,-)
+/usr/lib32/libpcre.so.1
+/usr/lib32/libpcre.so.1.2.12
+/usr/lib32/libpcre16.so.0
+/usr/lib32/libpcre16.so.0.2.12
+/usr/lib32/libpcre32.so.0
+/usr/lib32/libpcre32.so.0.0.12
+/usr/lib32/libpcrecpp.so.0
+/usr/lib32/libpcrecpp.so.0.0.2
+/usr/lib32/libpcreposix.so.0
+/usr/lib32/libpcreposix.so.0.0.7
+
 %files man
 %defattr(0644,root,root,0755)
 /usr/share/man/man1/pcre-config.1
@@ -338,3 +435,11 @@ rm -rf %{buildroot}
 /usr/lib64/libpcre32.a
 /usr/lib64/libpcrecpp.a
 /usr/lib64/libpcreposix.a
+
+%files staticdev32
+%defattr(-,root,root,-)
+/usr/lib32/libpcre.a
+/usr/lib32/libpcre16.a
+/usr/lib32/libpcre32.a
+/usr/lib32/libpcrecpp.a
+/usr/lib32/libpcreposix.a

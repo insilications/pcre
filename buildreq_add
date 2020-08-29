@@ -3,10 +3,12 @@
 # automatically. One name per line, no whitespace.
 #
 bzip2-dev
+bzip2-staticdev
 gcc-dev32
 gcc-libgcc32
 gcc-libstdc++32
 glibc-dev32
 glibc-libc32
 zlib-dev
+zlib-staticdev
 findutils

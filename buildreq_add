@@ -4,6 +4,7 @@
 #
 bzip2-dev
 bzip2-staticdev
+bzip2-dev32
 gcc-dev32
 gcc-libgcc32
 gcc-libstdc++32
@@ -11,4 +12,6 @@ glibc-dev32
 glibc-libc32
 zlib-dev
 zlib-staticdev
+zlib-dev32
+zlib-staticdev32
 findutils

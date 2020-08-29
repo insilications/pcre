@@ -7,7 +7,7 @@
 %define keepstatic 1
 Name     : pcre
 Version  : 8.44
-Release  : 60
+Release  : 61
 URL      : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source0  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 Source1  : https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz.sig
@@ -19,6 +19,7 @@ Requires: pcre-lib = %{version}-%{release}
 Requires: pcre-man = %{version}-%{release}
 BuildRequires : buildreq-configure
 BuildRequires : bzip2-dev
+BuildRequires : bzip2-dev32
 BuildRequires : bzip2-staticdev
 BuildRequires : findutils
 BuildRequires : gcc-dev32
@@ -26,10 +27,15 @@ BuildRequires : gcc-libgcc32
 BuildRequires : gcc-libstdc++32
 BuildRequires : glibc-dev32
 BuildRequires : glibc-libc32
+BuildRequires : pkgconfig(32bzip2)
+BuildRequires : pkgconfig(32zlib)
+BuildRequires : pkgconfig(bzip2)
 BuildRequires : pkgconfig(valgrind)
 BuildRequires : pkgconfig(zlib)
 BuildRequires : zlib-dev
+BuildRequires : zlib-dev32
 BuildRequires : zlib-staticdev
+BuildRequires : zlib-staticdev32
 # Suppress stripping binaries
 %define __strip /bin/true
 %define debug_package %{nil}
@@ -149,7 +155,7 @@ unset http_proxy
 unset https_proxy
 unset no_proxy
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1598714200
+export SOURCE_DATE_EPOCH=1598715070
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -239,7 +245,7 @@ cd ../build32;
 make %{?_smp_mflags} check || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1598714200
+export SOURCE_DATE_EPOCH=1598715070
 rm -rf %{buildroot}
 pushd ../build32/
 %make_install32 V=1 VERBOSE=1

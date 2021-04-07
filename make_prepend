@@ -1,3 +1,0 @@
-find . -type f -name 'Makefile' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;
-#
-find . -type f -name 'libtool' -exec sed -i 's/\-fPIC/\-fpic/g' {} \;

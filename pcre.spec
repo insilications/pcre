@@ -19,11 +19,20 @@ BuildRequires : bzip2-dev
 BuildRequires : bzip2-dev32
 BuildRequires : bzip2-staticdev
 BuildRequires : findutils
+BuildRequires : gcc
+BuildRequires : gcc-abi
+BuildRequires : gcc-dev
 BuildRequires : gcc-dev32
+BuildRequires : gcc-doc
 BuildRequires : gcc-libgcc32
+BuildRequires : gcc-libs-math
 BuildRequires : gcc-libstdc++32
+BuildRequires : gcc-libubsan
+BuildRequires : gcc-locale
 BuildRequires : glibc-dev32
 BuildRequires : glibc-libc32
+BuildRequires : libgcc1
+BuildRequires : libstdc++
 BuildRequires : pkgconfig(32bzip2)
 BuildRequires : pkgconfig(32zlib)
 BuildRequires : pkgconfig(bzip2)
@@ -150,7 +159,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1617791172
+export SOURCE_DATE_EPOCH=1618960199
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -229,18 +238,8 @@ export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
 make  %{?_smp_mflags}  V=1 VERBOSE=1
 popd
 
-%check
-export LANG=C.UTF-8
-unset http_proxy
-unset https_proxy
-unset no_proxy
-export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
-make %{?_smp_mflags} check || :
-cd ../build32;
-make %{?_smp_mflags} check || : || :
-
 %install
-export SOURCE_DATE_EPOCH=1617791172
+export SOURCE_DATE_EPOCH=1618960199
 rm -rf %{buildroot}
 pushd ../build32/
 %make_install32 V=1 VERBOSE=1
@@ -280,6 +279,63 @@ popd
 /usr/lib64/pkgconfig/libpcre32.pc
 /usr/lib64/pkgconfig/libpcrecpp.pc
 /usr/lib64/pkgconfig/libpcreposix.pc
+
+%files dev32
+%defattr(-,root,root,-)
+/usr/lib32/libpcre.so
+/usr/lib32/libpcre16.so
+/usr/lib32/libpcre32.so
+/usr/lib32/libpcrecpp.so
+/usr/lib32/libpcreposix.so
+/usr/lib32/pkgconfig/32libpcre.pc
+/usr/lib32/pkgconfig/32libpcre16.pc
+/usr/lib32/pkgconfig/32libpcre32.pc
+/usr/lib32/pkgconfig/32libpcrecpp.pc
+/usr/lib32/pkgconfig/32libpcreposix.pc
+/usr/lib32/pkgconfig/libpcre.pc
+/usr/lib32/pkgconfig/libpcre16.pc
+/usr/lib32/pkgconfig/libpcre32.pc
+/usr/lib32/pkgconfig/libpcrecpp.pc
+/usr/lib32/pkgconfig/libpcreposix.pc
+
+%files doc
+%defattr(0644,root,root,0755)
+%doc /usr/share/doc/pcre/*
+
+%files extras
+%defattr(-,root,root,-)
+/usr/lib64/libpcre16.so.0
+/usr/lib64/libpcre16.so.0.2.12
+/usr/lib64/libpcre32.so.0
+/usr/lib64/libpcre32.so.0.0.12
+/usr/lib64/libpcrecpp.so.0
+/usr/lib64/libpcrecpp.so.0.0.2
+/usr/lib64/libpcreposix.so.0
+/usr/lib64/libpcreposix.so.0.0.7
+
+%files lib
+%defattr(-,root,root,-)
+/usr/lib64/libpcre.so.1
+/usr/lib64/libpcre.so.1.2.12
+
+%files lib32
+%defattr(-,root,root,-)
+/usr/lib32/libpcre.so.1
+/usr/lib32/libpcre.so.1.2.12
+/usr/lib32/libpcre16.so.0
+/usr/lib32/libpcre16.so.0.2.12
+/usr/lib32/libpcre32.so.0
+/usr/lib32/libpcre32.so.0.0.12
+/usr/lib32/libpcrecpp.so.0
+/usr/lib32/libpcrecpp.so.0.0.2
+/usr/lib32/libpcreposix.so.0
+/usr/lib32/libpcreposix.so.0.0.7
+
+%files man
+%defattr(0644,root,root,0755)
+/usr/share/man/man1/pcre-config.1
+/usr/share/man/man1/pcregrep.1
+/usr/share/man/man1/pcretest.1
 /usr/share/man/man3/pcre.3
 /usr/share/man/man3/pcre16.3
 /usr/share/man/man3/pcre16_assign_jit_stack.3
@@ -380,63 +436,6 @@ popd
 /usr/share/man/man3/pcrestack.3
 /usr/share/man/man3/pcresyntax.3
 /usr/share/man/man3/pcreunicode.3
-
-%files dev32
-%defattr(-,root,root,-)
-/usr/lib32/libpcre.so
-/usr/lib32/libpcre16.so
-/usr/lib32/libpcre32.so
-/usr/lib32/libpcrecpp.so
-/usr/lib32/libpcreposix.so
-/usr/lib32/pkgconfig/32libpcre.pc
-/usr/lib32/pkgconfig/32libpcre16.pc
-/usr/lib32/pkgconfig/32libpcre32.pc
-/usr/lib32/pkgconfig/32libpcrecpp.pc
-/usr/lib32/pkgconfig/32libpcreposix.pc
-/usr/lib32/pkgconfig/libpcre.pc
-/usr/lib32/pkgconfig/libpcre16.pc
-/usr/lib32/pkgconfig/libpcre32.pc
-/usr/lib32/pkgconfig/libpcrecpp.pc
-/usr/lib32/pkgconfig/libpcreposix.pc
-
-%files doc
-%defattr(0644,root,root,0755)
-%doc /usr/share/doc/pcre/*
-
-%files extras
-%defattr(-,root,root,-)
-/usr/lib64/libpcre16.so.0
-/usr/lib64/libpcre16.so.0.2.12
-/usr/lib64/libpcre32.so.0
-/usr/lib64/libpcre32.so.0.0.12
-/usr/lib64/libpcrecpp.so.0
-/usr/lib64/libpcrecpp.so.0.0.2
-/usr/lib64/libpcreposix.so.0
-/usr/lib64/libpcreposix.so.0.0.7
-
-%files lib
-%defattr(-,root,root,-)
-/usr/lib64/libpcre.so.1
-/usr/lib64/libpcre.so.1.2.12
-
-%files lib32
-%defattr(-,root,root,-)
-/usr/lib32/libpcre.so.1
-/usr/lib32/libpcre.so.1.2.12
-/usr/lib32/libpcre16.so.0
-/usr/lib32/libpcre16.so.0.2.12
-/usr/lib32/libpcre32.so.0
-/usr/lib32/libpcre32.so.0.0.12
-/usr/lib32/libpcrecpp.so.0
-/usr/lib32/libpcrecpp.so.0.0.2
-/usr/lib32/libpcreposix.so.0
-/usr/lib32/libpcreposix.so.0.0.7
-
-%files man
-%defattr(0644,root,root,0755)
-/usr/share/man/man1/pcre-config.1
-/usr/share/man/man1/pcregrep.1
-/usr/share/man/man1/pcretest.1
 
 %files staticdev
 %defattr(-,root,root,-)

@@ -5,7 +5,7 @@
 %define keepstatic 1
 Name     : pcre
 Version  : 8.45
-Release  : 65
+Release  : 301
 URL      : https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.gz
 Source0  : https://ftp.pcre.org/pub/pcre/pcre-8.45.tar.gz
 Summary  : PCRE - Perl compatible regular expressions C library with 8 bit character support
@@ -158,7 +158,7 @@ unset https_proxy
 unset no_proxy
 export SSL_CERT_FILE=/var/cache/ca-certs/anchors/ca-certificates.crt
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1629060061
+export SOURCE_DATE_EPOCH=1629060419
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -316,7 +316,7 @@ make  %{?_smp_mflags}  V=1 VERBOSE=1  V=1 VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1629060061
+export SOURCE_DATE_EPOCH=1629060419
 rm -rf %{buildroot}
 pushd ../build32/
 %make_install32 V=1 VERBOSE=1

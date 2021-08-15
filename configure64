@@ -1,0 +1,7 @@
+--enable-shared
+--enable-static
+--enable-jit
+--enable-utf
+--enable-unicode-properties
+--enable-pcre16
+--enable-pcre32

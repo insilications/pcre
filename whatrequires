@@ -55,11 +55,9 @@ folks-dev
 fontconfig-dev
 fontconfig-dev32
 fontconfig-staticdev
-fontconfig-staticdev32
 freetype-dev
 freetype-dev32
 freetype-staticdev
-freetype-staticdev32
 fwupd-dev
 garcon-dev
 gcab-dev
@@ -130,6 +128,7 @@ libappindicator-dev
 libass-dev
 libass-staticdev
 libblockdev-dev
+libblockdev-staticdev
 libbluray-dev
 libbluray-staticdev
 libcacard-dev
@@ -226,6 +225,7 @@ totem-pl-parser-dev
 tpm2-abrmd-dev
 tracker-dev
 udisks2-dev
+udisks2-staticdev
 uhttpmock-dev
 upower-dev
 vala-dev

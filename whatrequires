@@ -953,6 +953,8 @@ pcmanfm
 pcmanfm-qt
 pcre-dev
 pcre-dev32
+pcre-staticdev
+pcre-staticdev32
 perl-Cairo
 perl-Cairo-GObject
 perl-GD

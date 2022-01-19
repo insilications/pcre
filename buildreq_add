@@ -13,5 +13,4 @@ glibc-libc32
 zlib-dev
 zlib-staticdev
 zlib-dev32
-zlib-staticdev32
 findutils
